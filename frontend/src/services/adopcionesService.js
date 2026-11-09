@@ -1,7 +1,12 @@
 
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_ADOPCIONES_URL;
+// URL de la API de Adopciones en Render
+const API_URL = import.meta.env.VITE_API_ADOPCIONES_URL
+  ?.trim()
+  .replace(/\/+$/, "");
+
+// Crear una solicitud de adopción
 export const crearAdopcion = async (datos, accessToken) => {
   const respuesta = await axios.post(
     `${API_URL}/adopciones/`,
@@ -16,6 +21,7 @@ export const crearAdopcion = async (datos, accessToken) => {
   return respuesta.data;
 };
 
+// Obtener las solicitudes realizadas por el usuario
 export const obtenerMisSolicitudes = async (accessToken) => {
   const respuesta = await axios.get(
     `${API_URL}/adopciones/mis-solicitudes`,
@@ -29,6 +35,7 @@ export const obtenerMisSolicitudes = async (accessToken) => {
   return respuesta.data;
 };
 
+// Obtener las solicitudes recibidas
 export const obtenerSolicitudesRecibidas = async (accessToken) => {
   const respuesta = await axios.get(
     `${API_URL}/adopciones/recibidas`,
@@ -42,6 +49,7 @@ export const obtenerSolicitudesRecibidas = async (accessToken) => {
   return respuesta.data;
 };
 
+// Aprobar una solicitud de adopción
 export const aprobarSolicitud = async (id, accessToken) => {
   const respuesta = await axios.patch(
     `${API_URL}/adopciones/${id}/aprobar`,
@@ -56,6 +64,7 @@ export const aprobarSolicitud = async (id, accessToken) => {
   return respuesta.data;
 };
 
+// Rechazar una solicitud de adopción
 export const rechazarSolicitud = async (id, accessToken) => {
   const respuesta = await axios.patch(
     `${API_URL}/adopciones/${id}/rechazar`,
