@@ -1,8 +1,7 @@
 
 import axios from "axios";
 
-const API_URL = "http://127.0.0.1:8001";
-
+const API_URL = import.meta.env.VITE_API_ADOPCIONES_URL;
 export const crearAdopcion = async (datos, accessToken) => {
   const respuesta = await axios.post(
     `${API_URL}/adopciones/`,
