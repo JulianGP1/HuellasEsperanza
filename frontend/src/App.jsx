@@ -1,25 +1,38 @@
-import Navbar from "./components/navbar";
+
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import Navbar from "./components/Navbar";
 import Inicio from "./pages/Inicio";
+import Registro from "./pages/Registro";
+import Login from "./pages/Login";
+import Adoptar from "./pages/Adoptar";
+import PublicarMascota from "./pages/PublicarMascota";
+import MisSolicitudes from "./pages/MisSolicitudes";
+import SolicitudesRecibidas from "./pages/SolicitudesRecibidas";
 
-function App() {
+export default function App() {
   return (
-    <div className="min-h-screen bg-white">
+    <BrowserRouter>
       <Navbar />
-      <Inicio />
 
-      <footer
-        id="nosotros"
-        className="bg-gray-900 px-6 py-8 text-center text-sm text-gray-300"
-      >
-        <p className="font-semibold text-white">
-          Fundación Huellas de Esperanza
-        </p>
-        <p className="mt-2">
-          Cada adopción es una nueva oportunidad de vida.
-        </p>
-      </footer>
-    </div>
+      <Routes>
+        <Route path="/" element={<Inicio />} />
+        <Route path="/Registro" element={<Registro />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/adoptar/:id" element={<Adoptar />} />
+        <Route
+          path="/publicar-mascota"
+          element={<PublicarMascota />}
+        />
+        <Route
+          path="/mis-solicitudes"
+          element={<MisSolicitudes />}
+        />
+        <Route
+          path="/solicitudes-recibidas"
+          element={<SolicitudesRecibidas />}
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
-
-export default App;
