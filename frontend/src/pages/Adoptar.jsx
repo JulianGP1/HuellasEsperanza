@@ -4,6 +4,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
 import { crearAdopcion } from "../services/adopcionesService";
 
+// URL de la API de Mascotas desplegada en Render
+const API_MASCOTAS = import.meta.env.VITE_API_MASCOTAS_URL
+  ?.trim()
+  .replace(/\/+$/, "");
+
 export default function Adoptar() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -19,12 +24,26 @@ export default function Adoptar() {
   });
 
   useEffect(() => {
+    let activo = true;
+
     const cargarDatos = async () => {
       try {
+        setVerificando(true);
+        setError("");
+        setMascota(null);
+
+        if (!supabase) {
+          throw new Error(
+            "Supabase no está configurado correctamente."
+          );
+        }
+
         const { data, error: authError } =
           await supabase.auth.getUser();
 
-        if (authError || !data.user) {
+        if (!activo) return;
+
+        if (authError || !data?.user) {
           navigate("/login", {
             replace: true,
             state: { regresarA: `/adoptar/${id}` },
@@ -32,23 +51,48 @@ export default function Adoptar() {
           return;
         }
 
+        if (!API_MASCOTAS) {
+          throw new Error(
+            "Falta configurar VITE_API_MASCOTAS_URL."
+          );
+        }
+
+        // Consultar la mascota en Render
         const respuesta = await fetch(
-          `http://127.0.0.1:8000/mascotas/${id}`
+          `${API_MASCOTAS}/mascotas/${id}`
         );
 
         if (!respuesta.ok) {
-          throw new Error("No se encontró la mascota.");
+          throw new Error(
+            `No se pudo consultar la mascota (${respuesta.status}).`
+          );
         }
 
-        setMascota(await respuesta.json());
+        const datosMascota = await respuesta.json();
+
+        if (activo) {
+          setMascota(datosMascota);
+        }
       } catch (err) {
-        setError(err.message || "Ocurrió un error.");
+        console.error("Error al cargar mascota:", err);
+
+        if (activo) {
+          setError(
+            err.message || "Ocurrió un error al cargar la mascota."
+          );
+        }
       } finally {
-        setVerificando(false);
+        if (activo) {
+          setVerificando(false);
+        }
       }
     };
 
     cargarDatos();
+
+    return () => {
+      activo = false;
+    };
   }, [id, navigate]);
 
   const cambiarCampo = (e) => {
@@ -64,6 +108,10 @@ export default function Adoptar() {
     setError("");
 
     try {
+      if (!supabase) {
+        throw new Error("Supabase no está configurado.");
+      }
+
       const {
         data: { session },
         error: sessionError,
@@ -71,6 +119,7 @@ export default function Adoptar() {
 
       if (sessionError || !session) {
         navigate("/login", {
+          replace: true,
           state: { regresarA: `/adoptar/${id}` },
         });
         return;
@@ -86,9 +135,12 @@ export default function Adoptar() {
       );
 
       alert("¡Solicitud de adopción enviada correctamente!");
-      navigate("/mis-solicitudes", { replace: true });
+
+      navigate("/mis-solicitudes", {
+        replace: true,
+      });
     } catch (err) {
-      console.error(err);
+      console.error("Error al enviar solicitud:", err);
 
       const detalle = err.response?.data?.detail;
 
@@ -111,11 +163,19 @@ export default function Adoptar() {
   };
 
   if (verificando) {
-    return <p className="p-10">Cargando información...</p>;
+    return (
+      <p className="p-10">
+        Cargando información...
+      </p>
+    );
   }
 
   if (error && !mascota) {
-    return <p className="p-10 text-red-600">{error}</p>;
+    return (
+      <p className="p-10 text-red-600">
+        {error}
+      </p>
+    );
   }
 
   if (!mascota) return null;
@@ -136,6 +196,10 @@ export default function Adoptar() {
             src={mascota.imagen_url}
             alt={mascota.nombre}
             className="h-24 w-24 rounded-xl object-cover"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.style.display = "none";
+            }}
           />
 
           <div>
