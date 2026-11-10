@@ -1,7 +1,9 @@
 
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_MASCOTAS_URL;
+const API_URL = import.meta.env.VITE_API_MASCOTAS_URL
+  ?.trim()
+  .replace(/\/+$/, "");
 
 export const obtenerMascotas = async () => {
   const respuesta = await axios.get(`${API_URL}/mascotas/`);

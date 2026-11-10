@@ -16,12 +16,13 @@ app.add_middleware(
         "http://127.0.0.1:5173",
         "https://huellas-esperanza.vercel.app",
     ],
-    allow_origin_regex=r"^https://huellasesperanzas1-[a-z0-9]+-juliangp1\.vercel\.app$",
+    allow_origin_regex=(
+        r"^https://huellas-esperanza-[a-z0-9]+-juliangp1\.vercel\.app$"
+    ),
     allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-Internal-Key"],
 )
-
 app.include_router(mascotas.router)
 
 
