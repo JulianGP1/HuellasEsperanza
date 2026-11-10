@@ -17,7 +17,8 @@ app.add_middleware(
         "https://huellas-esperanza.vercel.app",
     ],
     allow_origin_regex=(
-        r"^https://huellas-esperanza-[a-z0-9]+-juliangp1\.vercel\.app$"
+        r"^https://(?:huellas-esperanza|huellasesperanzas1)"
+        r"-[a-z0-9]+-juliangp1\.vercel\.app$"
     ),
     allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
