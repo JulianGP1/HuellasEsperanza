@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
-
+import BotonTema from "./BotonTema";
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -77,11 +77,12 @@ export default function Navbar() {
   };
 
   return (
-    <header className="border-b border-gray-200 bg-white shadow-sm">
-      <nav className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-4">
+
+    <header className="     bg-white text-gray-900 transition-colors duration-300  dark:bg-gray-950 dark:text-white  " >
+      <nav className=" mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-4">
         <Link
           to="/"
-          className="text-xl font-extrabold text-amber-700"
+          className="text-xl font-extrabold text-amber-700   text-amber-700 dark:text-amber-400"
         >
           Huellas de Esperanza
         </Link>
@@ -89,7 +90,8 @@ export default function Navbar() {
         <div className="flex flex-wrap items-center gap-4">
           <Link
             to="/"
-            className="font-medium text-gray-700 transition hover:text-amber-700"
+            className="font-medium text-gray-700 transition hover:text-amber-700   leading-tight text-gray-900
+                dark:text-white "
           >
             Inicio
           </Link>
@@ -97,7 +99,8 @@ export default function Navbar() {
           <Link
             to="/#mascotas"
             onClick={irAMascotas}
-            className="font-medium text-gray-700 transition hover:text-amber-700"
+            className="font-medium text-gray-700 transition leading-tight text-gray-900
+                dark:text-white hover:text-amber-700"
           >
             Mascotas
           </Link>
@@ -107,19 +110,22 @@ export default function Navbar() {
               <>
                 <Link
                   to="/mis-solicitudes"
-                  className="font-medium text-gray-700 transition hover:text-amber-700"
+                  className="font-medium leading-tight text-gray-900
+                dark:text-white text-gray-700 transition hover:text-amber-700"
                 >
                   Mis solicitudes
                 </Link>
                 <Link
-  to="/solicitudes-recibidas"
-  className="font-medium text-gray-700 hover:text-amber-700"
->
-  Solicitudes recibidas
-</Link>
+                  to="/solicitudes-recibidas"
+                  className="font-medium text-gray-700 leading-tight text-gray-900
+                dark:text-white hover:text-amber-700"
+                >
+                  Solicitudes recibidas
+                </Link>
                 <Link
                   to="/publicar-mascota"
-                  className="rounded-xl bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-700"
+                  className="rounded-xl bg-amber-600 leading-tight text-gray-900
+                dark:text-white px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-700"
                 >
                   Dar en adopción
                 </Link>
@@ -127,16 +133,20 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={cerrarSesion}
-                  className="rounded-xl border border-red-300 px-5 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50"
+                  className="rounded-xl border leading-tight text-gray-900
+                dark:text-white border-red-300 px-5 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50"
                 >
                   Cerrar sesión
                 </button>
+
+               
               </>
             ) : (
               <>
                 <Link
                   to="/login"
-                  className="font-medium text-gray-700 transition hover:text-amber-700"
+                  className="font-medium leading-tight text-gray-900
+                dark:text-white text-gray-700 transition hover:text-amber-700"
                 >
                   Iniciar sesión
                 </Link>
@@ -150,6 +160,8 @@ export default function Navbar() {
               </>
             ))}
         </div>
+
+          <BotonTema />
       </nav>
     </header>
   );

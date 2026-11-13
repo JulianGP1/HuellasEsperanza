@@ -1,6 +1,5 @@
 
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
 import {
   obtenerSolicitudesRecibidas,
@@ -8,50 +7,41 @@ import {
   rechazarSolicitud,
 } from "../services/adopcionesService";
 
-export default function SolicitudesRecibidas() {
-  const navigate = useNavigate();
+const coloresEstado = {
+  pendiente: "bg-yellow-100 text-yellow-800",
+  aprobada: "bg-green-100 text-green-800",
+  rechazada: "bg-red-100 text-red-800",
+};
 
+export default function SolicitudesRecibidas() {
   const [solicitudes, setSolicitudes] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [procesando, setProcesando] = useState(null);
   const [error, setError] = useState("");
-  const [mensaje, setMensaje] = useState("");
-
-  const obtenerToken = async () => {
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.getSession();
-
-    if (error || !session) {
-      navigate("/login", {
-        replace: true,
-        state: { regresarA: "/solicitudes-recibidas" },
-      });
-      return null;
-    }
-
-    return session.access_token;
-  };
 
   const cargarSolicitudes = async () => {
     try {
       setCargando(true);
       setError("");
 
-      const token = await obtenerToken();
-      if (!token) return;
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-      const datos = await obtenerSolicitudesRecibidas(token);
-      setSolicitudes(datos);
-    } catch (err) {
-      const detalle = err.response?.data?.detail;
+      if (!session) {
+        setError("Debes iniciar sesión.");
+        setSolicitudes([]);
+        return;
+      }
 
-      setError(
-        typeof detalle === "string"
-          ? detalle
-          : "No se pudieron cargar las solicitudes."
+      const datos = await obtenerSolicitudesRecibidas(
+        session.access_token
       );
+
+      setSolicitudes(Array.isArray(datos) ? datos : []);
+    } catch (err) {
+      console.error("Error al cargar solicitudes:", err);
+      setError("No se pudieron cargar las solicitudes.");
     } finally {
       setCargando(false);
     }
@@ -62,100 +52,139 @@ export default function SolicitudesRecibidas() {
   }, []);
 
   const gestionarSolicitud = async (id, accion) => {
-    const confirmacion = window.confirm(
-      accion === "aprobar"
-        ? "¿Deseas aprobar esta solicitud de adopción?"
-        : "¿Deseas rechazar esta solicitud?"
-    );
-
-    if (!confirmacion) return;
-
     try {
       setProcesando(id);
       setError("");
-      setMensaje("");
 
-      const token = await obtenerToken();
-      if (!token) return;
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        setError("Tu sesión ha expirado.");
+        return;
+      }
 
       if (accion === "aprobar") {
-        await aprobarSolicitud(id, token);
-        setMensaje("Solicitud aprobada correctamente.");
-      } else {
-        await rechazarSolicitud(id, token);
-        setMensaje("Solicitud rechazada correctamente.");
+        await aprobarSolicitud(id, session.access_token);
+      } else if (accion === "rechazar") {
+        await rechazarSolicitud(id, session.access_token);
       }
 
       await cargarSolicitudes();
     } catch (err) {
-      const detalle = err.response?.data?.detail;
-
+      console.error("Error al gestionar solicitud:", err);
       setError(
-        typeof detalle === "string"
-          ? detalle
-          : "No se pudo gestionar la solicitud."
+        err.response?.data?.detail ||
+          "No se pudo actualizar la solicitud."
       );
     } finally {
       setProcesando(null);
     }
   };
 
-  const coloresEstado = {
-    pendiente: "bg-yellow-100 text-yellow-800",
-    aprobada: "bg-green-100 text-green-800",
-    rechazada: "bg-red-100 text-red-800",
-  };
+  // Este contador solo incluye las solicitudes recibidas
+  // que devuelve la API para el usuario autenticado.
+  const totalSolicitudes = solicitudes.length;
+
+  const solicitudesPendientes = solicitudes.filter(
+    (solicitud) => solicitud.estado === "pendiente"
+  ).length;
+
+  const solicitudesAprobadas = solicitudes.filter(
+    (solicitud) => solicitud.estado === "aprobada"
+  ).length;
+  const solicitudesRechazadas = solicitudes.filter(
+    (solicitud) => solicitud.estado === "rechazada"
+  ).length;
 
   return (
-    <main className="min-h-screen bg-amber-50 px-6 py-12">
-      <div className="mx-auto max-w-5xl">
-        <h1 className="text-3xl font-bold text-gray-900">
+    <div className="min-h-screen dark:bg-gray-950 bg-gray-50 px-4 py-10">
+      <div className="mx-auto max-w-6xl">
+
+        <h1 className="mb-3 dark:text-white text-3xl font-bold text-gray-900">
           Solicitudes recibidas
         </h1>
 
-        <p className="mt-3 text-gray-600">
-          Administra las solicitudes de adopción de las mascotas
-          que has publicado.
+        <p className="mb-8 dark:text-gray-300 text-gray-600">
+          Gestiona las solicitudes de adopción de tus mascotas.
         </p>
 
-        {error && (
-          <p className="mt-6 rounded-xl bg-red-50 p-4 text-red-700">
-            {error}
-          </p>
-        )}
+        {/* Estadísticas del usuario */}
+        <div className="mb-8 grid gap-4 sm:grid-cols-3">
 
-        {mensaje && (
-          <p className="mt-6 rounded-xl bg-green-50 p-4 text-green-700">
-            {mensaje}
-          </p>
+          <div className="rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-md">
+            <p className="text-gray-500 dark:text-gray-300">
+              Total de solicitudes recibidas
+            </p>
+            <h2 className="mt-2 text-4xl font-bold text-blue-600">
+              {totalSolicitudes}
+            </h2>
+          </div>
+
+          <div className="rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-md">
+            <p className="text-gray-500 dark:text-gray-300">
+              Por revisar
+            </p>
+            <h2 className="mt-2 text-4xl font-bold text-yellow-600">
+              {solicitudesPendientes}
+            </h2>
+          </div>
+
+          <div className="rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-md">
+            <p className="text-gray-500 dark:text-gray-300">
+              Aprobadas
+            </p>
+            <h2 className="mt-2 text-4xl font-bold text-green-600">
+              {solicitudesAprobadas}
+            </h2>
+          </div>
+          <div className="rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-md">
+            <p className="text-gray-500 dark:text-gray-300">
+              Rechazadas
+            </p>
+            <h2 className="mt-2 text-4xl font-bold text-red-600">
+              {solicitudesRechazadas}
+            </h2>
+          </div>
+
+        </div>
+
+        {error && (
+          <div className="mb-6 rounded-xl bg-red-100 p-4 text-red-700">
+            {error}
+          </div>
         )}
 
         {cargando ? (
-          <p className="mt-8 text-gray-500">
+          <p className="text-center text-gray-500">
             Cargando solicitudes...
           </p>
-        ) : solicitudes.length === 0 && !error ? (
-          <div className="mt-8 rounded-2xl bg-white p-8 text-center shadow">
-            <p className="text-gray-600">
-              Todavía no has recibido solicitudes de adopción.
+        ) : solicitudes.length === 0 ? (
+          <div className="rounded-2xl bg-white dark:bg-gray-800 p-10 text-center shadow-md">
+            <p className="text-gray-600 dark:text-gray-300">
+              Todavía no tienes solicitudes recibidas.
             </p>
           </div>
         ) : (
-          <div className="mt-8 grid gap-6 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+
             {solicitudes.map((solicitud) => (
               <div
                 key={solicitud.id}
                 className="overflow-hidden rounded-2xl bg-white shadow-md"
               >
+
                 {solicitud.mascota_imagen && (
                   <img
                     src={solicitud.mascota_imagen}
-                    alt={solicitud.mascota_nombre}
+                    alt={solicitud.mascota_nombre || "Mascota"}
                     className="h-48 w-full object-cover"
                   />
                 )}
 
                 <div className="p-6">
+
                   <div className="flex items-center justify-between gap-3">
                     <h2 className="text-xl font-bold">
                       {solicitud.mascota_nombre}
@@ -172,6 +201,7 @@ export default function SolicitudesRecibidas() {
                   </div>
 
                   <div className="mt-5 space-y-3 text-gray-700">
+
                     <p>
                       <strong>Solicitante:</strong>{" "}
                       {solicitud.nombre_solicitante}
@@ -194,14 +224,18 @@ export default function SolicitudesRecibidas() {
 
                     <p className="text-sm text-gray-500">
                       Fecha:{" "}
-                      {new Date(
-                        solicitud.fecha_solicitud
-                      ).toLocaleDateString("es-CO")}
+                      {solicitud.fecha_solicitud
+                        ? new Date(
+                            solicitud.fecha_solicitud
+                          ).toLocaleDateString("es-CO")
+                        : "Sin fecha"}
                     </p>
+
                   </div>
 
                   {solicitud.estado === "pendiente" && (
                     <div className="mt-6 flex gap-3">
+
                       <button
                         onClick={() =>
                           gestionarSolicitud(
@@ -229,14 +263,18 @@ export default function SolicitudesRecibidas() {
                       >
                         Rechazar
                       </button>
+
                     </div>
                   )}
+
                 </div>
               </div>
             ))}
+
           </div>
         )}
+
       </div>
-    </main>
+    </div>
   );
 }

@@ -57,13 +57,13 @@ export default function MisSolicitudes() {
   };
 
   return (
-    <main className="min-h-screen bg-amber-50 px-6 py-12">
+    <main className="min-h-screen dark:bg-gray-950 bg-amber-50 px-6 py-12">
       <div className="mx-auto max-w-5xl">
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-3xl dark:text-white font-bold text-gray-900">
           Mis solicitudes de adopción
         </h1>
 
-        <p className="mt-3 text-gray-600">
+        <p className="mt-3 dark:text-gray-300 text-gray-600">
           Consulta el estado de tus solicitudes.
         </p>
 
@@ -80,8 +80,8 @@ export default function MisSolicitudes() {
         )}
 
         {!cargando && !error && solicitudes.length === 0 && (
-          <div className="mt-8 rounded-2xl bg-white p-8 text-center shadow">
-            <p className="text-gray-600">
+          <div className="mt-8 rounded-2xl bg-white dark:bg-gray-800 p-8 text-center shadow">
+            <p className="text-gray-600 dark:text-gray-300">
               Todavía no has realizado solicitudes de adopción.
             </p>
 

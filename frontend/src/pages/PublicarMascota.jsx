@@ -100,18 +100,18 @@ export default function PublicarMascota() {
   }
 
   return (
-    <main className="min-h-screen bg-amber-50 px-6 py-12">
-      <div className="mx-auto max-w-2xl rounded-2xl bg-white p-8 shadow-lg">
-        <h1 className="text-3xl font-bold text-gray-900">
+    <main className="min-h-screen dark:bg-gray-950 bg-amber-50 px-6 py-12">
+      <div className="mx-auto max-w-2xl rounded-2xl  bg-white dark:bg-gray-800 p-8 shadow-lg">
+        <h1 className="text-3xl font-bold dark:text-white text-gray-900">
           Dar una mascota en adopción
         </h1>
 
-        <p className="mt-3 text-gray-500">
+        <p className="mt-3 text-gray-500 dark:text-gray-300">
           Registra los datos de la mascota para encontrarle
           una familia responsable.
         </p>
 
-        <form onSubmit={publicar} className="mt-8 space-y-5">
+        <form onSubmit={publicar} className="mt-8 dark:text-white space-y-5">
           <div>
             <label className="font-semibold">
               Nombre de la mascota
@@ -132,7 +132,7 @@ export default function PublicarMascota() {
               value={formulario.especie}
               onChange={cambiarCampo}
               required
-              className="mt-2 w-full rounded-xl border p-3"
+              className="mt-2 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-xl border p-3"
             >
               <option value="">Seleccionar especie</option>
               <option value="Perro">Perro</option>
